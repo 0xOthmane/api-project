@@ -22,6 +22,9 @@ class Treasure
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    /**
+     * Add description to a value
+     */
     #[ORM\Column]
     private ?int $value = null;
 
