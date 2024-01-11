@@ -2,14 +2,20 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Repository\TreasureRepository;
 use Carbon\Carbon;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use function Symfony\Component\String\u;
 
 #[ORM\Entity(repositoryClass: TreasureRepository::class)]
 #[ApiResource(
@@ -19,8 +25,16 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ],
     denormalizationContext: [
         'groups' => ['treasure:write'],
-    ]
+    ],
+    formats: [
+        'jsonld',
+        'json',
+        'html',
+        'csv' => 'text/csv',
+    ],
 )]
+#[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
+#[ApiFilter(PropertyFilter::class)]
 class Treasure
 {
     #[ORM\Id]
@@ -30,6 +44,7 @@ class Treasure
 
     #[ORM\Column(length: 255)]
     #[Groups(['treasure:read', 'treasure:write'])]
+    #[ApiFilter(SearchFilter::class, strategy: 'partial')]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -41,6 +56,7 @@ class Treasure
      */
     #[ORM\Column]
     #[Groups(['treasure:read', 'treasure:write'])]
+    #[ApiFilter(RangeFilter::class)]
     private ?int $value = null;
 
     #[ORM\Column]
@@ -88,6 +104,12 @@ class Treasure
     public function getDescription(): ?string
     {
         return $this->description;
+    }
+
+    #[Groups(['treasure:read'])]
+    public function getShortDescription(): ?string
+    {
+        return u($this->description)->truncate(40, '...');
     }
 
     public function setDescription(string $description): static
