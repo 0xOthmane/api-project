@@ -3,12 +3,17 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use App\Repository\TreasureRepository;
+use Carbon\Carbon;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TreasureRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    // uriTemplate:'/treasure/{id}'
+)]
 class Treasure
 {
     #[ORM\Id]
@@ -32,10 +37,20 @@ class Treasure
     private ?int $coolFactor = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?\DateTimeImmutable $createdAt;
 
     #[ORM\Column]
     private ?bool $isPublished = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
+    public function getPlunderedAtAgo(): string
+    {
+        return Carbon::instance(new \DateTime($this->getCreatedAt()->format(\DateTime::ATOM)))->diffForHumans();
+    }
 
     public function getId(): ?int
     {
