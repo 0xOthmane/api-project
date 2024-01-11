@@ -9,10 +9,17 @@ use App\Repository\TreasureRepository;
 use Carbon\Carbon;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TreasureRepository::class)]
 #[ApiResource(
     // uriTemplate:'/treasure/{id}'
+    normalizationContext: [
+        'groups' => ['treasure:read'],
+    ],
+    denormalizationContext: [
+        'groups' => ['treasure:write'],
+    ]
 )]
 class Treasure
 {
@@ -22,15 +29,18 @@ class Treasure
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['treasure:read', 'treasure:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['treasure:read'])]
     private ?string $description = null;
 
     /**
      * Add description to a value
      */
     #[ORM\Column]
+    #[Groups(['treasure:read', 'treasure:write'])]
     private ?int $value = null;
 
     #[ORM\Column]
@@ -40,13 +50,19 @@ class Treasure
     private ?\DateTimeImmutable $createdAt;
 
     #[ORM\Column]
-    private ?bool $isPublished = null;
+    private ?bool $isPublished = false;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
     }
 
+    /**
+     * A human readable represtation of creation date
+     *
+     * @return string
+     */
+    #[Groups(['treasure:read'])]
     public function getPlunderedAtAgo(): string
     {
         return Carbon::instance(new \DateTime($this->getCreatedAt()->format(\DateTime::ATOM)))->diffForHumans();
