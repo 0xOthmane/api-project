@@ -53,6 +53,7 @@ final class TreasureFactory extends ModelFactory
             'isPublished' => self::faker()->boolean(),
             'name' => self::faker()->text(255),
             'value' => self::faker()->randomNumber(),
+            'owner'=> UserFactory::new()
         ];
     }
 

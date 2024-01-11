@@ -2,34 +2,62 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[ApiResource(
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
+)]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['username'], message: 'It looks like another dragon took your username. ROAR!')]
+
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue('SEQUENCE')]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['user:read', 'user:write'])]
+    #[Assert\NotBlank]
+    #[Assert\Email]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private array $roles = [];
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['user:write'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $username = null;
+
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Treasure::class)]
+    private Collection $treasures;
+
+    public function __construct()
+    {
+        $this->treasures = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -109,6 +137,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): static
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Treasure>
+     */
+    public function getTreasures(): Collection
+    {
+        return $this->treasures;
+    }
+
+    public function addTreasure(Treasure $treasure): static
+    {
+        if (!$this->treasures->contains($treasure)) {
+            $this->treasures->add($treasure);
+            $treasure->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTreasure(Treasure $treasure): static
+    {
+        if ($this->treasures->removeElement($treasure)) {
+            // set the owning side to null (unless already changed)
+            if ($treasure->getOwner() === $this) {
+                $treasure->setOwner(null);
+            }
+        }
 
         return $this;
     }
