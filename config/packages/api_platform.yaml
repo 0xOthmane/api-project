@@ -20,6 +20,7 @@ api_platform:
     keep_legacy_inflector: false
     swagger:
         api_keys:
+            # overridden in OpenApiFactoryDecorator 
             access_token:
                 name: Authorization
                 type: header
