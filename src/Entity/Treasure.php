@@ -7,6 +7,7 @@ use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
@@ -32,9 +33,18 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
         ),
         new GetCollection(),
-        new Post(),
-        new Put(),
-        new Patch(),
+        new Post(
+            security: 'is_granted("ROLE_TREASURE_CREATE")'
+        ),
+        new Put(
+            security: 'is_granted("ROLE_TREASURE_EDIT")'
+        ),
+        new Patch(
+            security: 'is_granted("ROLE_TREASURE_EDIT")'
+        ),
+        new Delete(
+            security: 'is_granted("ROLE_ADMIN")'
+        )
     ],
     normalizationContext: [
         'groups' => ['treasure:read'],
