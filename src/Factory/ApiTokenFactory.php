@@ -48,7 +48,10 @@ final class ApiTokenFactory extends ModelFactory
     {
         return [
             'ownedBy' => UserFactory::new(),
-            'scopes' => [],
+            'scopes' => [
+                ApiToken::SCOPE_TREASURE_CREATE,
+                ApiToken::SCOPE_USER_EDIT,
+            ],
             'token' => self::faker()->text(68),
         ];
     }
