@@ -8,7 +8,11 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Repository\TreasureRepository;
 use Carbon\Carbon;
@@ -21,6 +25,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TreasureRepository::class)]
 #[ApiResource(
     // uriTemplate:'/treasure/{id}'
+    operations: [
+        new Get(
+            normalizationContext: [
+                'groups' => ['treasure:read', 'treasure:item:get'],
+            ],
+        ),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Patch(),
+    ],
     normalizationContext: [
         'groups' => ['treasure:read'],
     ],
@@ -34,8 +49,21 @@ use Symfony\Component\Validator\Constraints as Assert;
         'csv' => 'text/csv',
     ],
 )]
+#[ApiResource(
+    uriTemplate: '/users/{user_id}/treasures.{_format}',
+    operations: [new GetCollection()],
+    uriVariables: [
+        'user_id' => new Link(
+            fromProperty: 'dragonTreasures',
+            fromClass: User::class,
+        ),
+    ],
+)]
 #[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
 #[ApiFilter(PropertyFilter::class)]
+#[ApiFilter(SearchFilter::class, properties: [
+    'owner.username' => 'partial',
+])]
 class Treasure
 {
     #[ORM\Id]
@@ -44,7 +72,7 @@ class Treasure
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['treasure:read', 'treasure:write'])]
+    #[Groups(['treasure:read', 'treasure:write', 'user:read'])]
     #[ApiFilter(SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50, maxMessage: 'Describe your loot in 50 chars or less')]
@@ -73,6 +101,7 @@ class Treasure
 
     #[ORM\ManyToOne(inversedBy: 'treasures')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['treasure:read', 'treasure:write'])]
     private ?User $owner = null;
 
     public function __construct()
