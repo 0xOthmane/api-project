@@ -29,9 +29,9 @@ class ApiToken
     #[ORM\Column]
     private array $scopes = [];
 
-    public function __construct(string $tokenType= self::PERSONAL_ACCESS_TOKEN_PREFIX)
+    public function __construct(string $tokenType = self::PERSONAL_ACCESS_TOKEN_PREFIX)
     {
-        $this->token = $tokenType;
+        $this->token = $tokenType.bin2hex(random_bytes(32));
     }
 
     public function getId(): ?int
@@ -85,5 +85,10 @@ class ApiToken
         $this->scopes = $scopes;
 
         return $this;
+    }
+
+    public function isValid(): bool
+    {
+        return $this->expiresAt === null || $this->expiresAt > new \DateTimeImmutable();
     }
 }
