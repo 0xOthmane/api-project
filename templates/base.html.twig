@@ -11,6 +11,11 @@
         {% endblock %}
     </head>
     <body>
+        <script>
+            windows.user = {{ app.user | serialize('jsonld', {
+                'groups':['user:read']
+            }) | raw }};
+        </script>
         {% block body %}{% endblock %}
     </body>
 </html>
