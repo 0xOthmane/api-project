@@ -5,13 +5,13 @@ namespace App\Tests\Functional;
 use App\Factory\TreasureFactory;
 use App\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Browser\HttpOptions;
 use Zenstruck\Browser\Json;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class TreasureResourceTest extends KernelTestCase
+class TreasureResourceTest extends ApiTestCase
 {
-    use HasBrowser;
     use ResetDatabase;
 
     public function testGetCollectionOfTreasures(): void
@@ -79,15 +79,22 @@ class TreasureResourceTest extends KernelTestCase
                 'json' => []
             ])
             ->assertStatus(422)
-            ->post('/api/treasures', [
-                'json' => [
-                    'name' => 'A shiny thing',
-                    'description' => 'It sparkles when I wave it in the air.',
-                    'value' => 1000,
-                    'coolFactor' => 5,
-                    'owner' => '/api/users/' . $user->getId(),
-                ],
-            ])
+            // ->post('/api/treasures', HttpOptions::json([
+            //     'json' => [
+            //         'name' => 'A shiny thing',
+            //         'description' => 'It sparkles when I wave it in the air.',
+            //         'value' => 1000,
+            //         'coolFactor' => 5,
+            //         'owner' => '/api/users/' . $user->getId(),
+            //     ],
+            // ])->withHeader('Accept', 'application/ld+json'))
+            ->post('/api/treasures', HttpOptions::json([
+                'name' => 'A shiny thing',
+                'description' => 'It sparkles when I wave it in the air.',
+                'value' => 1000,
+                'coolFactor' => 5,
+                'owner' => '/api/users/'.$user->getId(),
+            ]))
             ->assertStatus(201)
             ->assertJsonMatches('name', 'A shiny thing');
     }
