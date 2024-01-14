@@ -152,4 +152,21 @@ class TreasureResourceTest extends ApiTestCase
             ])
             ->assertStatus(403);
     }
+
+    public function testAdminCanPatchToEditTreasure(): void
+    {
+        // $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN']]);
+        // $admin = UserFactory::new()->withRoles(['ROLE_ADMIN'])->create();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $treasure = TreasureFactory::createOne();
+        $this->browser()
+            ->actingAs($admin)
+            ->patch('/api/treasures/'.$treasure->getId(), [
+                'json' => [
+                    'value' => 12345,
+                ],
+            ])
+            ->assertStatus(200)
+            ->assertJsonMatches('value', 12345);
+    }
 }
