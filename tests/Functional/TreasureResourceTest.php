@@ -158,7 +158,9 @@ class TreasureResourceTest extends ApiTestCase
         // $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN']]);
         // $admin = UserFactory::new()->withRoles(['ROLE_ADMIN'])->create();
         $admin = UserFactory::new()->asAdmin()->create();
-        $treasure = TreasureFactory::createOne();
+        $treasure = TreasureFactory::createOne([
+            'isPublished' => false,
+        ]);
         $this->browser()
             ->actingAs($admin)
             ->patch('/api/treasures/'.$treasure->getId(), [
@@ -167,6 +169,27 @@ class TreasureResourceTest extends ApiTestCase
                 ],
             ])
             ->assertStatus(200)
-            ->assertJsonMatches('value', 12345);
+            ->assertJsonMatches('value', 12345)
+            ->assertJsonMatches('isPublished', false);
+    }
+
+    public function testOwnerCanSeeIsPublishedField(): void
+    {
+        $user = UserFactory::new()->create();
+        $treasure = TreasureFactory::createOne([
+            'isPublished' => false,
+            'owner' => $user,
+        ]);
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/api/treasures/'.$treasure->getId(), [
+                'json' => [
+                    'value' => 12345,
+                ],
+            ])
+            ->assertStatus(200)
+            ->assertJsonMatches('value', 12345)
+            ->assertJsonMatches('isPublished', false)
+        ;
     }
 }

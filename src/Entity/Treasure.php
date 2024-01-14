@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -111,6 +112,10 @@ class Treasure
     private ?\DateTimeImmutable $createdAt;
 
     #[ORM\Column]
+    #[Groups(['treasure:read', 'treasure:write'])]
+    #[ApiProperty(readable: false)]
+    #[ApiProperty(security: 'is_granted("ROLE_ADMIN")')]
+    #[ApiProperty(security: 'is_granted("EDIT", object)')]
     private ?bool $isPublished = false;
 
     #[ORM\ManyToOne(inversedBy: 'treasures')]
