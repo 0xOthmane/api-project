@@ -118,4 +118,38 @@ class TreasureResourceTest extends ApiTestCase
             ])
             ->assertStatus(403);
     }
+
+    public function testPatchToUpdateTreasure()
+    {
+        $user = UserFactory::createOne();
+        $treasure = TreasureFactory::createOne(['owner' => $user]);
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/api/treasures/' . $treasure->getId(), [
+                'json' => [
+                    'value' => 12345,
+                ],
+            ])
+            ->assertStatus(200)
+            ->assertJsonMatches('value', 12345);
+        $user2 = UserFactory::createOne();
+        $this->browser()
+            ->actingAs($user2)
+            ->patch('/api/treasures/' . $treasure->getId(), [
+                'json' => [
+                    'value' => 6789,
+                ],
+            ])
+            ->assertStatus(403);
+
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/api/treasures/' . $treasure->getId(), [
+                'json' => [
+                    // change the owner to someone else
+                    'owner' => '/api/users/' . $user2->getId(),
+                ],
+            ])
+            ->assertStatus(403);
+    }
 }

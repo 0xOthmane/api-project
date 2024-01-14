@@ -40,7 +40,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("ROLE_TREASURE_EDIT")'
         ),
         new Patch(
-            security: 'is_granted("ROLE_TREASURE_EDIT")'
+            security: 'is_granted("ROLE_TREASURE_EDIT") and object.getOwner() == user',
+            securityPostDenormalize: 'object.getOwner() == user',
         ),
         new Delete(
             security: 'is_granted("ROLE_ADMIN")'
