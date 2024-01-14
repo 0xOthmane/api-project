@@ -89,7 +89,7 @@ class Treasure
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['treasure:read'])]
+    #[Groups(['treasure:read', 'treasure:write'])]
     private ?string $description = null;
 
     /**
@@ -101,6 +101,7 @@ class Treasure
     private ?int $value = null;
 
     #[ORM\Column]
+    #[Groups(['treasure:read', 'treasure:write'])]
     private ?int $coolFactor = null;
 
     #[ORM\Column]
