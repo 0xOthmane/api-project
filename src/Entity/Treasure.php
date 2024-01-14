@@ -113,8 +113,8 @@ class Treasure
 
     #[ORM\Column]
     #[Groups(['treasure:read', 'treasure:write'])]
-    #[ApiProperty(readable: false)]
-    #[ApiProperty(security: 'is_granted("ROLE_ADMIN")')]
+    // #[ApiProperty(readable: false)]
+    // #[ApiProperty(security: 'is_granted("ROLE_ADMIN")')]
     #[ApiProperty(security: 'is_granted("EDIT", object)')]
     private ?bool $isPublished = false;
 
