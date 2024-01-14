@@ -2,6 +2,8 @@
 
 namespace App\Tests\Functional;
 
+use App\Entity\ApiToken;
+use App\Factory\ApiTokenFactory;
 use App\Factory\TreasureFactory;
 use App\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -93,9 +95,27 @@ class TreasureResourceTest extends ApiTestCase
                 'description' => 'It sparkles when I wave it in the air.',
                 'value' => 1000,
                 'coolFactor' => 5,
-                'owner' => '/api/users/'.$user->getId(),
+                'owner' => '/api/users/' . $user->getId(),
             ]))
             ->assertStatus(201)
             ->assertJsonMatches('name', 'A shiny thing');
+    }
+
+    public function testPostToCreateTreasureWithApiKey(): void
+    {
+        // $token = ApiTokenFactory::createOne([
+        //     'scopes' => [ApiToken::SCOPE_TREASURE_CREATE]
+        // ]);
+        $token = ApiTokenFactory::createOne([
+            'scopes' => [ApiToken::SCOPE_TREASURE_EDIT]
+        ]);
+        $this->browser()
+            ->post('/api/treasures', [
+                'json' => [],
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token->getToken()
+                ]
+            ])
+            ->assertStatus(403);
     }
 }
