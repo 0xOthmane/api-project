@@ -22,7 +22,9 @@ class UserApi
     public ?string $username = null;
 
     /**
-     * @var array<int, DragonTreasure>
+     * @var array<int, Treasure>
      */
-    public array $dragonTreasures = [];
+    public array $treasures = [];
+
+    public int $throwingDistance = 0;
 }
