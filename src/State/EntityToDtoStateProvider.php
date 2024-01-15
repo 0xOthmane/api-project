@@ -21,8 +21,11 @@ class EntityToDtoStateProvider implements ProviderInterface
         private MicroMapperInterface $microMapper,
     ) {
     }
+
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+        // dd($operation, $context);
+        $resourceClass = $operation->getClass();
         // Retrieve the state from somewhere
         if ($operation instanceof CollectionOperationInterface) {
             $entities = $this->collectionProvider->provide($operation, $uriVariables, $context);
@@ -31,7 +34,7 @@ class EntityToDtoStateProvider implements ProviderInterface
             // dd(iterator_to_array($entities));
             $dtos = [];
             foreach ($entities as $entity) {
-                $dtos[] = $this->mapEntityToDto($entity);
+                $dtos[] = $this->mapEntityToDto($entity, $resourceClass);
             }
             // return $dtos;
             return new TraversablePaginator(
@@ -47,10 +50,10 @@ class EntityToDtoStateProvider implements ProviderInterface
         if (!$entity) {
             return null;
         }
-        return $this->mapEntityToDto($entity);
+        return $this->mapEntityToDto($entity, $resourceClass);
     }
 
-    private function mapEntityToDto(object $entity): object
+    private function mapEntityToDto(object $entity, string $resourceClass): object
     {
         // $dto = new UserApi();
         // $dto->id = $entity->getId();
@@ -59,6 +62,6 @@ class EntityToDtoStateProvider implements ProviderInterface
         // $dto->treasures = $entity->getTreasures()->toArray();
         // $dto->throwingDistance = rand(1, 10);
         // return $dto;
-        return $this->microMapper->map($entity, UserApi::class);
+        return $this->microMapper->map($entity, $resourceClass);
     }
 }
