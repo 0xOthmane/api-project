@@ -1,5 +1,7 @@
 <?php
 
+namespace App\ApiResource;
+
 use ApiPlatform\Doctrine\Orm\State\CollectionProvider;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata\ApiProperty;
