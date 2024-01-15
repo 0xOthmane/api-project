@@ -54,7 +54,7 @@ class EntityToDtoStateProvider implements ProviderInterface
         $dto->id = $entity->getId();
         $dto->email = $entity->getEmail();
         $dto->username = $entity->getUsername();
-        $dto->treasures = $entity->getDragonTreasures()->toArray();
+        $dto->treasures = $entity->getTreasures()->toArray();
         $dto->throwingDistance = rand(1, 10);
         return $dto;
     }

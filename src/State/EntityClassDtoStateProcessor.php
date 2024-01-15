@@ -10,6 +10,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use UserApi;
 
 class EntityClassDtoStateProcessor implements ProcessorInterface
@@ -18,7 +19,7 @@ class EntityClassDtoStateProcessor implements ProcessorInterface
     public function __construct(
         #[Autowire(service: PersistProcessor::class)] private ProcessorInterface $persistProcessor,
         #[Autowire(service: RemoveProcessor::class)] private ProcessorInterface $removeProcessor,
-
+        private UserPasswordHasherInterface $userPasswordHasher,
         private UserRepository $userRepository
     ) {
     }
@@ -50,8 +51,9 @@ class EntityClassDtoStateProcessor implements ProcessorInterface
         }
         $entity->setEmail($dto->email);
         $entity->setUsername($dto->username);
-        $entity->setPassword('TODO properly');
-        // TODO: handle dragon treasures
+        if ($dto->password) {
+            $entity->setPassword($this->userPasswordHasher->hashPassword($entity, $dto->password));
+        }
         return $entity;
     }
 }

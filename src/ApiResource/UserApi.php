@@ -23,6 +23,8 @@ class UserApi
 
     public ?string $username = null;
 
+    public ?string $password = null;
+
     /**
      * @var array<int, Treasure>
      */
